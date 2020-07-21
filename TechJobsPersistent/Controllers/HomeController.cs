@@ -10,6 +10,7 @@ using TechJobsPersistent.ViewModels;
 using TechJobsPersistent.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TechJobsPersistent.Controllers
 {
@@ -32,12 +33,32 @@ namespace TechJobsPersistent.Controllers
         [HttpGet("/Add")]
         public IActionResult AddJob()
         {
-            return View();
+            List<Employer> employers = context.Employers.ToList();
+            List<Skill> skills = context.Skills.ToList();
+
+            AddJobViewModel addJobViewModel = new AddJobViewModel(employers, skills);
+            return View(addJobViewModel);
         }
 
-        public IActionResult ProcessAddJobForm()
+        [HttpPost("/Add")]
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string selectSkills)
         {
-            return View();
+            if(ModelState.IsValid)
+            {
+                Employer theEmployer = context.Employers.Find(addJobViewModel.EmployerId);
+                Job newJob = new Job
+                {
+                    Name = addJobViewModel.Name,
+                    EmployerId = addJobViewModel.EmployerId,
+                    Employer = theEmployer
+                };
+
+                context.Jobs.Add(newJob);
+                context.SaveChanges();
+                return Redirect("/Employer/");
+            }
+
+            return View("Add", addJobViewModel);
         }
 
         public IActionResult Detail(int id)
