@@ -9,3 +9,7 @@ FROM techjobs.employers
 WHERE employers.location = 'St. Louis City';
 
 --Part 3
+SELECT DISTINCT skills.name, skills.description, jobs.name
+FROM skills, jobskills, jobs
+WHERE jobskills.jobid = jobs.id AND jobskills.skillid = skills.id AND jobs.name IS NOT NULL
+ORDER BY skills.name;

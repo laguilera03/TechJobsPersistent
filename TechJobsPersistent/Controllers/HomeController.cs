@@ -11,6 +11,8 @@ using TechJobsPersistent.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Runtime.InteropServices.ComTypes;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace TechJobsPersistent.Controllers
 {
@@ -40,8 +42,8 @@ namespace TechJobsPersistent.Controllers
             return View(addJobViewModel);
         }
 
-        [HttpPost("/Add")]
-        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string selectSkills)
+        [HttpPost("Home/Add")]
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string[] selectSkills)
         {
             if(ModelState.IsValid)
             {
@@ -53,11 +55,22 @@ namespace TechJobsPersistent.Controllers
                     Employer = theEmployer
                 };
 
+                //Iterate a Loop that sends the numbers
+                for (int i = 0; i < selectSkills.Length; i++)
+                {
+                    JobSkill newJobSkill = new JobSkill
+                    {
+                        JobId = newJob.Id,
+                        Job = newJob,
+                        SkillId = int.Parse(selectSkills[i])
+                    };
+                    context.JobSkills.Add(newJobSkill);
+                }
+
                 context.Jobs.Add(newJob);
                 context.SaveChanges();
-                return Redirect("/Employer/");
+                return Redirect("/Home/Detail/" + newJob.Id);
             }
-
             return View("Add", addJobViewModel);
         }
 
